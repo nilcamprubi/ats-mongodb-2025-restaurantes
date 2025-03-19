@@ -16,7 +16,7 @@ db.createCollection("restaurant-inspections", {
                 },
                 rating: { bsonType: "int", minimum: 1, maximum: 5 },
                 type_of_food: { bsonType: "string" },
-                url: { bsonType: "string" }
+                url: { bsonType: "string" },
                 inspections: {
                     bsonType: "array",
                     items: {
@@ -28,6 +28,7 @@ db.createCollection("restaurant-inspections", {
                                 bsonType: "string",
                                 enum: ["Fail", "Pass", "Warning Issued", "Violation Issued", "No Violation Issued"]
                             },
+                            sector: { bsonType: "string" }
                         }
                     }
                 }
