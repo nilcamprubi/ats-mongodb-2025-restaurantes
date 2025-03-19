@@ -1,0 +1,42 @@
+db.restaurants.aggregate([
+    {
+      $addFields: {
+        idAsString: { $toString: "$_id" }
+      }
+    },
+    {
+      $lookup: {
+        from: "inspections",
+        localField: "idAsString",
+        foreignField: "restaurant_id",
+        as: "inspections"
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        name: 1,
+        address: {
+          street: "$address",
+          city: "$address line 2",
+          outcode: "$outcode",
+          postcode: "$postcode"
+        },
+        rating: 1,
+        type_of_food: 1,
+        url: 1,
+        inspections: {
+          $map: {
+            input: "$inspections",
+            as: "inspection",
+            in: {
+              date: "$$inspection.date",
+              result: "$$inspection.result",
+              sector: "$$inspection.sector"
+            }
+          }
+        }
+      }
+    },
+    { $out: "restaurant-inspections" }
+  ]);
