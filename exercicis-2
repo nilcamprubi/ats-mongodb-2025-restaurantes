@@ -1,0 +1,16 @@
+// Exercici 2.1
+db.restaurants.find({ type_of_food: "Chinese" })
+
+// Exercici 2.2
+db.inspections.find({ 
+    result: { 
+        $ne: "No Violation Issued" 
+    } 
+}).sort({ date: 1 })
+
+// Exercici 2.3
+db.restaurants.find({ 
+    rating: { 
+        $gt: 4 
+    } 
+})
