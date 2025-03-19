@@ -1,4 +1,5 @@
-db.createCollection("restaurant-inspections", {
+db.runCommand({
+    collMod: "restaurant-inspections",
     validator: {
         $jsonSchema: {
             bsonType: "object",
@@ -37,4 +38,3 @@ db.createCollection("restaurant-inspections", {
         }
     }
 })
-            
