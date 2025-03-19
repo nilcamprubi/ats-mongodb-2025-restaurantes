@@ -7,10 +7,11 @@ db.createCollection("restaurant-inspections", {
                 name: { bsonType: "string" },
                 address: {
                     bsonType: "object",
-                    required: [ "street", "city", "postcode" ],
+                    required: [ "street", "city", "outcode", "postcode" ],
                     properties: {
                         street: { bsonType: "string" },
                         city: { bsonType: "string" },
+                        outcode: { bsonType: "string" },
                         postcode: { bsonType: "string" }
                     }
                 },
