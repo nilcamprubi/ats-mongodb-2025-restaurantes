@@ -1,0 +1,38 @@
+db.createCollection("restaurant-inspections", {
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            required: [ "name", "address", "rating", "type_of_food", "url", "inspections" ],
+            properties: {
+                name: { bsonType: "string" },
+                address: {
+                    bsonType: "object",
+                    required: [ "street", "city", "postcode" ],
+                    properties: {
+                        street: { bsonType: "string" },
+                        city: { bsonType: "string" },
+                        postcode: { bsonType: "string" }
+                    }
+                },
+                rating: { bsonType: "int", minimum: 1, maximum: 5 },
+                type_of_food: { bsonType: "string" },
+                url: { bsonType: "string" }
+                inspections: {
+                    bsonType: "array",
+                    items: {
+                        bsonType: "object",
+                        required: [ "date", "result" ],
+                        properties: {
+                            date: { bsonType: "date" },
+                            result: {
+                                bsonType: "string",
+                                enum: ["Fail", "Pass", "Warning Issued", "Violation Issued", "No Violation Issued"]
+                            },
+                        }
+                    }
+                }
+            }
+        }
+    }
+})
+            
