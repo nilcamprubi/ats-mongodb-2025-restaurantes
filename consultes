@@ -1,3 +1,86 @@
 // Consultes bases
+// C1 - 10ms
+db.restaurants_with_inspections.aggregate([
+  {
+    $match: {
+      "inspections.result": "Pass" // Apply match as early as possible
+    }
+  },
+  {
+    $unwind: "$inspections"
+  },
+  {
+    $match: {
+      "inspections.result": "Pass" // Redundant but can help if early match is not fully effective.
+    }
+  },
+  {
+    $group: {
+      _id: "$name",
+      inspeccionsSuperades: { $sum: 1 }
+    }
+  },
+  {
+    $sort: { inspeccionsSuperades: -1 }
+  }
+]).explain("executionStats")
+
+// C2 - 33 ms
+db.restaurants_with_inspections.aggregate([
+  {
+    $addFields: {
+      lastInspection: {
+        $arrayElemAt: [
+          { $sortArray: { input: "$inspections", sortBy: { date: -1 } } },
+          0
+        ]
+      }
+    }
+  },
+  {
+    $match: {
+      "lastInspection.result": "Pass"
+    }
+  },
+  {
+    $project: {
+      name: 1,
+      _id: 0
+    }
+  }
+]).explain("executionStats")
+
+
+// C3 - 3 ms
+db.restaurants_with_inspections.aggregate([
+  { $addFields: { latestInspection: { $arrayElemAt: [ 
+      { $sortArray: { input: "$inspections", sortBy: { date: -1 } } }, 0 ] } } },
+  { $match: { "latestInspection.result": "Pass", "address.city": "London" } },
+  { $sort: { rating: -1 } }
+]).explain("executionStats")
+
+
+// C4 - 5 ms
+db.restaurants_with_inspections.aggregate([
+  { $addFields: { latestInspection: { $arrayElemAt: [
+      { $sortArray: { input: "$inspections", sortBy: { date: -1 } } }, 0 ] } } },
+  { $match: { "latestInspection.result": "Pass", "type_of_food": "Chinese" } },
+  { $sort: { rating: -1 } }
+ ]).explain("executionStats")
+
 
 // Consultes optimitzades amb índexs
+// C1 - 7 ms (-3 ms)
+db.getCollection("restaurant-inspections").createIndex({ "inspections.result": 1 })
+db.getCollection("restaurant-inspections").createIndex({ "name": 1, "inspections.result": 1 })
+
+// C2 - 11 ms (-22 ms)
+db.restaurants_with_inspections.createIndex({ "inspections.date": 1 });
+
+// C3 - 2 ms (-1 ms)
+db.restaurants_with_inspections.createIndex({ "address.city": 1, "latestInspection.result": 1 });
+db.restaurants_with_inspections.createIndex({ "rating": 1 });
+
+// C4 - 1 ms (-4 ms)
+db.restaurants_with_inspections.createIndex({ "type_of_food": 1, "latestInspection.result": 1 });
+db.restaurants_with_inspections.createIndex({ "rating": 1 });
